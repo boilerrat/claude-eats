@@ -237,7 +237,16 @@ export default function MealCard({
         /* Empty slot */
         <div className="flex-1 flex flex-col items-center justify-center gap-3 py-8">
           <p className="font-display italic text-subtle text-sm">empty</p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap justify-center">
+            {planId && (
+              <button
+                onClick={onSwap}
+                disabled={swapping}
+                className="text-xs text-amber hover:text-amber-light transition-colors border border-amber/30 rounded-lg px-2.5 py-1.5 hover:border-amber/60 disabled:opacity-40"
+              >
+                Generate
+              </button>
+            )}
             <button
               onClick={onPickSaved}
               className="text-xs text-subtle hover:text-amber transition-colors border border-border rounded-lg px-2.5 py-1.5 hover:border-amber/40"
