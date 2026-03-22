@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPassword, createSessionToken, SESSION_COOKIE } from '@/lib/auth';
+import { verifyPassword } from '@/lib/auth-node';
+import { createSessionToken, SESSION_COOKIE } from '@/lib/auth';
 import { getAppSettings } from '@/lib/appSettings';
 
 export async function POST(req: NextRequest) {

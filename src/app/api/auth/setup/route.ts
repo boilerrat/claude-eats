@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { hashPassword, createSessionToken, SESSION_COOKIE } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth-node';
+import { createSessionToken, SESSION_COOKIE } from '@/lib/auth';
 import { getAppSettings, updateAppSettings } from '@/lib/appSettings';
 
 export async function POST(req: NextRequest) {

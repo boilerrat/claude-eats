@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAppSettings, updateAppSettings } from '@/lib/appSettings';
-import { hashPassword, verifyPassword } from '@/lib/auth';
+import { hashPassword, verifyPassword } from '@/lib/auth-node';
 
 const ALL_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
