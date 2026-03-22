@@ -2,6 +2,6 @@
 set -e
 
 # Run any pending migrations before starting
-npx prisma migrate deploy
+node_modules/.bin/prisma migrate deploy
 
 exec node server.js
