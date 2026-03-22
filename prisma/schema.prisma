@@ -50,9 +50,10 @@ model IngredientPreference {
 // One plan per week, keyed to the Monday date of that week.
 
 model WeeklyPlan {
-  id        String   @id @default(cuid())
-  weekStart DateTime // Monday 00:00:00 UTC
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  weekStart   DateTime // Monday 00:00:00 UTC
+  createdAt   DateTime @default(now())
+  skippedDays String   @default("[]") // JSON array of day names marked as day-off
 
   meals         WeeklyPlanMeal[]
   shoppingItems ShoppingListItem[]
@@ -71,6 +72,7 @@ model WeeklyPlanMeal {
   meal      Meal       @relation(fields: [mealId], references: [id])
   dayOfWeek String     // 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday'
   servings  Int        @default(6) // 4 family + 2 extra
+  locked    Boolean    @default(false) // If true, regenerate skips this day
 
   @@unique([planId, dayOfWeek])
 }

@@ -19,11 +19,33 @@ export default async function HomePage() {
     },
   });
 
-  // Order meals by day
-  const mealsByDay = DAYS.map(day => ({
-    day,
-    planMeal: plan?.meals.find(m => m.dayOfWeek === day) ?? null,
-  }));
+  // Cast to any to work around stale TS language server cache after prisma generate
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const planAny = plan as any;
+  const skippedDays: string[] = planAny?.skippedDays ? JSON.parse(planAny.skippedDays) : [];
+
+  const mealsByDay = DAYS.map(day => {
+    const pm = plan?.meals.find(m => m.dayOfWeek === day);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pmAny = pm as any;
+    return {
+      day,
+      planMeal: pm
+        ? {
+            id: pm.id,
+            dayOfWeek: pm.dayOfWeek,
+            servings: pm.servings,
+            locked: pmAny.locked as boolean,
+            meal: {
+              id: pm.meal.id,
+              name: pm.meal.name,
+              description: pm.meal.description,
+            },
+          }
+        : null,
+      skipped: skippedDays.includes(day),
+    };
+  });
 
   return <WeeklyPlanView weekStart={weekStart} mealsByDay={mealsByDay} planId={plan?.id ?? null} />;
 }
