@@ -1,0 +1,19 @@
+{
+  "name": "claude-eats",
+  "version": "0.1.0",
+  "description": "Weekly meal plan generator — produces Word docs and HTML grocery checklists with configurable portion scaling.",
+  "scripts": {
+    "generate": "ts-node src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "docx": "^8.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  }
+}
