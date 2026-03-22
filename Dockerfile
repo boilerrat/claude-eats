@@ -22,19 +22,19 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Install prisma CLI globally so migrations can run at startup
+RUN npm install -g prisma@7.5.0
+
 # Only copy what Next.js needs to run
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Prisma: schema, migrations, and generated client
+# Prisma: schema, migrations, generated client, and runtime adapter deps
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src/generated ./src/generated
-
-# Prisma adapter dependencies (libSQL adapter, no native engine needed)
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Run migrations then start the app
 # DATABASE_URL must be set to a path on the persistent volume, e.g.:

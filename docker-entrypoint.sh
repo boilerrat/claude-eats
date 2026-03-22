@@ -2,6 +2,6 @@
 set -e
 
 # Run any pending migrations before starting
-node node_modules/prisma/build/index.js migrate deploy
+prisma migrate deploy
 
 exec node server.js
