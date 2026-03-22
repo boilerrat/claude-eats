@@ -2,13 +2,21 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentWeekStart } from '@/lib/dates';
 import { generateMeals } from '@/lib/generateMeals';
+import { getAppSettings, getPlanDays } from '@/lib/appSettings';
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const TARGET_SERVINGS = 6; // 4 family + 2 extra
 
 export async function POST() {
   try {
-    const weekStart = getCurrentWeekStart();
+    const [weekStart, settings, DAYS] = await Promise.all([
+      Promise.resolve(getCurrentWeekStart()),
+      getAppSettings(),
+      getPlanDays(),
+    ]);
+
+    if (!settings.anthropicApiKey) {
+      return NextResponse.json({ error: 'No API key configured — visit Settings to add one' }, { status: 503 });
+    }
 
     // Load existing plan to find locked meals and skipped days
     const existing = await prisma.weeklyPlan.findUnique({
@@ -54,6 +62,7 @@ export async function POST() {
           likedMealNames: [...new Set(likedMealNames)],
           dislikedMealNames: [...new Set(dislikedMealNames)],
           targetServings: TARGET_SERVINGS,
+          apiKey: settings.anthropicApiKey,
         })
       : [];
 

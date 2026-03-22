@@ -1,8 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { RecipeJSON, PrepGuideJSON, GroceryCategory } from './types';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 export interface GeneratedMeal {
   name: string;
   description: string;
@@ -17,6 +15,7 @@ interface GenerateOptions {
   likedMealNames: string[];
   dislikedMealNames: string[];
   targetServings: number;
+  apiKey: string;
 }
 
 const CATEGORIES: GroceryCategory[] = ['proteins', 'produce', 'dairy', 'pantry', 'spices'];
@@ -29,7 +28,10 @@ export async function generateMeals(opts: GenerateOptions): Promise<GeneratedMea
     likedMealNames,
     dislikedMealNames,
     targetServings,
+    apiKey,
   } = opts;
+
+  const client = new Anthropic({ apiKey });
 
   const prompt = `You are a family meal planner. Generate exactly ${count} weeknight dinner recipes for a family of 4 with ${targetServings - 4} extra portions (total ${targetServings} servings) for leftovers/freezing.
 

@@ -18,9 +18,12 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Delegate to the generate route
+  // Delegate to the generate route (pass internal secret to bypass session middleware)
   const base = req.nextUrl.origin;
-  const res = await fetch(`${base}/api/generate`, { method: 'POST' });
+  const res = await fetch(`${base}/api/generate`, {
+    method: 'POST',
+    headers: { 'x-internal-secret': process.env.APP_SECRET ?? '' },
+  });
   const body = await res.json();
 
   if (!res.ok) {

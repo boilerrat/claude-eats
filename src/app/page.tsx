@@ -1,13 +1,15 @@
 import { prisma } from '@/lib/db';
 import { getCurrentWeekStart } from '@/lib/dates';
+import { getPlanDays } from '@/lib/appSettings';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
 
 export const dynamic = 'force-dynamic';
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const;
-
 export default async function HomePage() {
-  const weekStart = getCurrentWeekStart();
+  const [weekStart, DAYS] = await Promise.all([
+    Promise.resolve(getCurrentWeekStart()),
+    getPlanDays(),
+  ]);
 
   const plan = await prisma.weeklyPlan.findUnique({
     where: { weekStart },

@@ -77,6 +77,16 @@ model WeeklyPlanMeal {
   @@unique([planId, dayOfWeek])
 }
 
+// ── AppSettings ───────────────────────────────────────────────────────────────
+// Single-row singleton for app configuration. id is always "singleton".
+
+model AppSettings {
+  id              String @id @default("singleton")
+  passwordHash    String @default("") // scrypt hash of the app password
+  anthropicApiKey String @default("") // user-supplied Anthropic API key
+  planDays        String @default("[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\"]") // JSON array
+}
+
 // ── ShoppingListItem ──────────────────────────────────────────────────────────
 // Aggregated grocery list for a WeeklyPlan. Amounts are pre-scaled strings.
 

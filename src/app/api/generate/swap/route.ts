@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { generateMeals } from '@/lib/generateMeals';
+import { getAppSettings } from '@/lib/appSettings';
 
 const TARGET_SERVINGS = 6;
 
@@ -17,10 +18,15 @@ export async function POST(req: NextRequest) {
   });
   if (!plan) return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
 
-  const [preferences, allRatings] = await Promise.all([
+  const [preferences, allRatings, settings] = await Promise.all([
     prisma.ingredientPreference.findMany(),
     prisma.mealRating.findMany({ include: { meal: true } }),
+    getAppSettings(),
   ]);
+
+  if (!settings.anthropicApiKey) {
+    return NextResponse.json({ error: 'No API key configured — visit Settings to add one' }, { status: 503 });
+  }
 
   const blockedIngredients = preferences.filter(p => p.type === 'blocked').map(p => p.ingredient);
   const preferredIngredients = preferences.filter(p => p.type === 'preferred').map(p => p.ingredient);
@@ -42,6 +48,7 @@ export async function POST(req: NextRequest) {
     likedMealNames: [],
     dislikedMealNames: [...new Set([...dislikedMealNames, ...existingMealNames])],
     targetServings: TARGET_SERVINGS,
+    apiKey: settings.anthropicApiKey,
   });
 
   await prisma.$transaction(async tx => {
