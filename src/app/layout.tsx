@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 pb-24 sm:pb-12">
           {children}
         </main>
-        <footer className="hidden sm:block max-w-5xl mx-auto px-6 pb-8">
+        <footer className="max-w-5xl mx-auto px-6 pb-28 sm:pb-8">
           <div className="flex items-center justify-center gap-3">
             <a
               href="https://buymeacoffee.com/boilerhaus"

@@ -139,7 +139,7 @@ export default function NavBar() {
 
       {/* ── Mobile bottom tab bar ───────────────────────── */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border pb-safe">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-6">
           {navLinks.map(({ href, short, icon }) => {
             const active = pathname === href;
             return (
@@ -155,6 +155,22 @@ export default function NavBar() {
               </Link>
             );
           })}
+          <a
+            href="https://buymeacoffee.com/boilerhaus"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Buy me a coffee"
+            className="flex flex-col items-center gap-1 pt-2 pb-2 text-[10px] font-medium tracking-wide text-subtle/60 hover:text-amber/70 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <path d="M18 8h1a4 4 0 010 8h-1"/>
+              <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/>
+              <line x1="10" y1="1" x2="10" y2="4"/>
+              <line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+            <span>Support</span>
+          </a>
         </div>
       </nav>
     </>
