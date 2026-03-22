@@ -19,66 +19,101 @@ export default async function MealPage({ params }: Props) {
 
   return (
     <div className="max-w-2xl">
-      <Link href="/" className="text-sm text-gray-500 hover:text-gray-300 mb-6 inline-block">
-        ← Back to this week
+      {/* Back */}
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1.5 text-sm text-subtle hover:text-muted mb-7 transition-colors"
+      >
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+          <path d="M10 4L6 8l4 4"/>
+        </svg>
+        This week
       </Link>
 
-      <h1 className="text-2xl font-bold mb-2">{meal.name}</h1>
+      {/* Title */}
+      <h1 className="font-display italic text-3xl sm:text-4xl text-text leading-tight mb-2">
+        {meal.name}
+      </h1>
       {meal.description && (
-        <p className="text-gray-400 mb-8">{meal.description}</p>
+        <p className="text-muted mb-8 leading-relaxed">{meal.description}</p>
       )}
 
-      {/* Recipe */}
+      {/* Ingredients */}
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4 text-orange-400">Ingredients</h2>
-        <ul className="space-y-1.5">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-amber mb-4 flex items-center gap-2">
+          <span className="w-5 h-px bg-amber/40 hidden sm:block" />
+          Ingredients
+        </h2>
+        <div className="rounded-2xl border border-border bg-surface overflow-hidden">
           {recipe.ingredients.map((ing, i) => (
-            <li key={i} className="flex gap-3 text-sm">
-              <span className="text-gray-400 w-24 shrink-0">{ing.amount} {ing.unit}</span>
-              <span>{ing.item}{ing.note ? ` (${ing.note})` : ''}</span>
-            </li>
+            <div
+              key={i}
+              className={`flex items-baseline gap-4 px-5 py-3 text-sm ${
+                i < recipe.ingredients.length - 1 ? 'border-b border-border' : ''
+              }`}
+            >
+              <span className="text-muted w-28 shrink-0 tabular-nums text-right">
+                {ing.amount} {ing.unit}
+              </span>
+              <span className="text-text">
+                {ing.item}
+                {ing.note && <span className="text-subtle"> ({ing.note})</span>}
+              </span>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
 
+      {/* Method */}
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4 text-orange-400">Method</h2>
-        <ol className="space-y-3">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-amber mb-4 flex items-center gap-2">
+          <span className="w-5 h-px bg-amber/40 hidden sm:block" />
+          Method
+        </h2>
+        <ol className="space-y-4">
           {recipe.steps.map((step, i) => (
-            <li key={i} className="flex gap-3 text-sm">
-              <span className="text-orange-500 font-mono shrink-0">{i + 1}.</span>
-              <span className="text-gray-200">{step}</span>
+            <li key={i} className="flex gap-4">
+              <span className="font-display italic text-amber text-lg leading-none shrink-0 w-6 text-right">
+                {i + 1}
+              </span>
+              <p className="text-text text-sm leading-relaxed pt-0.5">{step}</p>
             </li>
           ))}
         </ol>
       </section>
 
       {/* Sunday Prep */}
-      <section className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-        <h2 className="text-lg font-semibold mb-4 text-orange-400">Sunday Prep</h2>
-        <ul className="space-y-2 mb-4">
-          {prep.steps.map((step, i) => (
-            <li key={i} className="flex gap-2 text-sm">
-              <span className="text-gray-500 shrink-0">•</span>
-              <span>{step}</span>
-            </li>
-          ))}
-        </ul>
-        {prep.vacuumTips.length > 0 && (
-          <>
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
-              Vacuum Sealer Tips
-            </p>
-            <ul className="space-y-2">
-              {prep.vacuumTips.map((tip, i) => (
-                <li key={i} className="flex gap-2 text-sm text-gray-300">
-                  <span className="text-blue-400 shrink-0">VS</span>
-                  <span>{tip}</span>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+      <section className="rounded-2xl border border-border bg-surface overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-amber">
+            Sunday Prep
+          </h2>
+        </div>
+        <div className="px-5 py-4 space-y-4">
+          <ul className="space-y-3">
+            {prep.steps.map((step, i) => (
+              <li key={i} className="flex gap-3 text-sm">
+                <span className="text-amber/50 shrink-0 font-mono text-xs mt-0.5 w-4 text-right">{i + 1}.</span>
+                <span className="text-text leading-relaxed">{step}</span>
+              </li>
+            ))}
+          </ul>
+          {prep.vacuumTips.length > 0 && (
+            <div className="pt-4 border-t border-border">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-subtle mb-3 flex items-center gap-1.5">
+                <span>⚡</span> Vacuum Sealer Tips
+              </p>
+              <ul className="space-y-2">
+                {prep.vacuumTips.map((tip, i) => (
+                  <li key={i} className="flex gap-3 text-sm">
+                    <span className="text-xs font-bold text-amber/60 shrink-0 font-mono mt-0.5">VS</span>
+                    <span className="text-muted leading-relaxed">{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );

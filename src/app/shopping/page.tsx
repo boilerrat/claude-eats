@@ -28,25 +28,33 @@ export default async function ShoppingPage() {
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-start justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Shopping List</h1>
+          <h1 className="font-display italic text-3xl sm:text-4xl text-text leading-tight">
+            Shopping List
+          </h1>
           {plan && (
-            <p className="text-gray-400 text-sm mt-0.5">{formatWeekRange(weekStart)}</p>
+            <p className="text-muted text-sm mt-1.5 font-medium">{formatWeekRange(weekStart)}</p>
           )}
         </div>
         {plan && (
           <a
             href="/api/export/shopping?format=docx"
-            className="px-3 py-1.5 rounded border border-gray-700 text-sm text-gray-300 hover:text-white hover:border-gray-500 transition-colors"
+            className="shrink-0 mt-1 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border text-sm text-muted hover:text-text hover:border-border-bright transition-all"
           >
-            Export DOCX
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+              <path d="M8 2v8M5 7l3 3 3-3M3 13h10"/>
+            </svg>
+            Export
           </a>
         )}
       </div>
 
       {!plan || grouped.length === 0 ? (
-        <p className="text-gray-500">No shopping list yet — generate a meal plan first.</p>
+        <div className="text-center py-20">
+          <p className="font-display italic text-xl text-muted mb-2">No list yet</p>
+          <p className="text-subtle text-sm">Generate a meal plan first to build your shopping list.</p>
+        </div>
       ) : (
         <ShoppingListView planId={plan.id} grouped={grouped} />
       )}

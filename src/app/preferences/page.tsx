@@ -13,9 +13,11 @@ export default async function PreferencesPage() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-2xl font-bold mb-2">Ingredient Preferences</h1>
-      <p className="text-gray-400 text-sm mb-8">
-        These are sent to the AI every time a meal plan is generated.
+      <h1 className="font-display italic text-3xl sm:text-4xl text-text leading-tight mb-2">
+        Preferences
+      </h1>
+      <p className="text-muted text-sm mb-8">
+        Claude uses these every time it generates a meal plan.
       </p>
       <PreferencesView blocked={blocked} preferred={preferred} />
     </div>

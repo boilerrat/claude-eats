@@ -1,44 +1,32 @@
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
-import Link from 'next/link';
+import { Playfair_Display, DM_Sans } from 'next/font/google';
+import NavBar from '@/components/NavBar';
 import './globals.css';
 
-const geist = Geist({ subsets: ['latin'] });
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  style: ['normal', 'italic'],
+  weight: ['400', '500', '600', '700'],
+});
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  weight: ['300', '400', '500', '600'],
+});
 
 export const metadata: Metadata = {
-  title: 'claude-eats',
-  description: 'Weekly meal planner for the family',
+  title: 'claude·eats',
+  description: 'Weekly family meal planner',
 };
-
-const navLinks = [
-  { href: '/',            label: 'This Week' },
-  { href: '/shopping',    label: 'Shopping' },
-  { href: '/prep',        label: 'Sunday Prep' },
-  { href: '/preferences', label: 'Preferences' },
-  { href: '/history',     label: 'History' },
-];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.className} h-full antialiased`}>
-      <body className="bg-gray-950 text-gray-100 min-h-screen">
-        <header className="border-b border-gray-800 bg-gray-900">
-          <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
-            <span className="font-semibold tracking-tight text-orange-400 text-lg">claude-eats</span>
-            <nav className="flex gap-1">
-              {navLinks.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </header>
-        <main className="max-w-5xl mx-auto px-4 py-8">
+    <html lang="en" className={`${playfair.variable} ${dmSans.variable} h-full`}>
+      <body className="bg-bg text-text min-h-screen font-sans antialiased">
+        <NavBar />
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 pb-24 sm:pb-12">
           {children}
         </main>
       </body>
