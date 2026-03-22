@@ -74,9 +74,13 @@ Return ONLY the JSON array, no markdown, no explanation.`;
 
   const message = await client.messages.create({
     model: 'claude-opus-4-6',
-    max_tokens: 8192,
+    max_tokens: 16000,
     messages: [{ role: 'user', content: prompt }],
   });
+
+  if (message.stop_reason === 'max_tokens') {
+    throw new Error('Claude response was truncated — response too long for token limit');
+  }
 
   const text = message.content.find(b => b.type === 'text')?.text ?? '';
 
