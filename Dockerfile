@@ -27,11 +27,14 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Prisma: copy schema, migrations, and generated client
+# Prisma: schema, migrations, and generated client
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src/generated ./src/generated
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Prisma adapter dependencies (libSQL adapter, no native engine needed)
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Run migrations then start the app
 # DATABASE_URL must be set to a path on the persistent volume, e.g.:
