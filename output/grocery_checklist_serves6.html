@@ -1,54 +1,4 @@
-/**
- * HTML Grocery Checklist Generator
- *
- * Produces a self-contained HTML file with tappable checkboxes, plan tabs,
- * and a progress bar. No external dependencies — works offline on any device.
- */
-
-import * as fs from 'fs';
-import * as path from 'path';
-import type { GeneratorConfig } from '../types';
-import { scaleIngredients } from '../utils/scale';
-import { buildGroceryList, CATEGORY_CONFIG, CATEGORY_ORDER } from '../utils/grocery';
-
-export function generateChecklist(config: GeneratorConfig): void {
-  const { targetServings, plans, outputDir } = config;
-  const suffix = config.outputSuffix ?? `serves${targetServings}`;
-  const outputPath = path.join(outputDir, `grocery_checklist_${suffix}.html`);
-
-  // Build scaled grocery lists for each plan
-  const planData = plans.map(plan => {
-    const scaledRecipes = plan.recipes.map(recipe => ({
-      ...recipe,
-      ingredients: scaleIngredients(recipe.ingredients, recipe.baseServings, targetServings),
-    }));
-    const groceryList = buildGroceryList(scaledRecipes);
-    return { plan, groceryList };
-  });
-
-  // Serialise grocery data for the HTML script block
-  const plansJson = JSON.stringify(
-    planData.map(({ plan, groceryList }) => ({
-      id: plan.id,
-      label: plan.label,
-      color: plan.id === 'a' ? '#4A7FC1' : '#C8803A',
-      activeTabClass: plan.id === 'a' ? 'active-a' : 'active-b',
-      categories: CATEGORY_ORDER
-        .filter(cat => groceryList[cat].length > 0)
-        .map(cat => ({
-          category: `${CATEGORY_CONFIG[cat].emoji} ${CATEGORY_CONFIG[cat].label}`,
-          color: CATEGORY_CONFIG[cat].color,
-          bg: CATEGORY_CONFIG[cat].bg,
-          items: groceryList[cat].map(i => i.display),
-        })),
-    }))
-  );
-
-  const servingNote = targetServings > 4
-    ? `Family of 4 + leftovers &middot; Scaled to ${targetServings} servings`
-    : `Family of 4 &middot; Monday&ndash;Friday Dinners`;
-
-  const html = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -107,7 +57,7 @@ export function generateChecklist(config: GeneratorConfig): void {
       <div>
         <div class="eyebrow">Weekly Shop</div>
         <div class="title">Grocery Checklist</div>
-        <div class="subtitle">${servingNote}</div>
+        <div class="subtitle">Family of 4 + leftovers &middot; Scaled to 6 servings</div>
       </div>
       <button id="reset-btn" onclick="resetCurrent()">Reset</button>
     </div>
@@ -125,7 +75,7 @@ export function generateChecklist(config: GeneratorConfig): void {
 </div>
 <div id="lists"></div>
 <script>
-const PLANS = ${plansJson};
+const PLANS = [{"id":"a","label":"Plan A — Primary Week","color":"#4A7FC1","activeTabClass":"active-a","categories":[{"category":"🥩 Proteins","color":"#C0392B","bg":"#FDF0EE","items":["2.3 kg beef chuck or blade roast","2.3 kg bone-in skin-on chicken thighs","1050 g lean ground beef","6 pieces salmon fillets (~150g each)","1050 g ground beef (burger patties)"]},{"category":"🥦 Produce","color":"#27AE60","bg":"#EEF9F2","items":["6 pieces medium carrots, cut into chunks","6 pieces medium potatoes, cut into chunks","2 pieces large onion, diced","7 cloves garlic cloves, minced","2.8 pieces lemons (juice, marinade)","2 cloves garlic cloves, minced (sauce)","3 pieces tomatoes","1 head lettuce","4.1 cloves garlic cloves, minced (glaze)","1.5 head broccoli, cut into florets","6 pieces large russet potatoes"]},{"category":"🧀 Dairy & Refrigerated","color":"#E67E22","bg":"#FEF6EE","items":["5.5 tbsp plain Greek yogurt (garlic sauce)","300 g shredded cheddar","1 tub sour cream","3 pieces eggs","6 pieces sliced cheese"]},{"category":"🥫 Pantry & Dry Goods","color":"#2980B9","bg":"#EEF4FB","items":["2.8 tbsp tomato paste","1.5 litres beef stock","1.5 tbsp Worcestershire sauce","2.8 tbsp all-purpose flour","2.8 tbsp olive oil","4.3 tbsp olive oil (marinade)","12 pieces pita bread","1 jar pickled banana peppers or pickles","3 tins (400ml) canned diced tomatoes","1.5 tins (400ml) canned kidney beans, drained","1 tins (400ml) canned corn, drained","1.5 cups biscuit mix or instant mash (topping)","4.3 tbsp soy sauce (glaze)","2.8 tbsp honey","1.5 tsp sesame oil","3 cups cooked long-grain rice","1.5 cups frozen peas or corn","2.8 tbsp soy sauce (rice)","6 pieces burger buns","4.3 tbsp olive oil (fries)","1 set mayo, mustard, ketchup, hot sauce"]},{"category":"🫙 Spices","color":"#8E44AD","bg":"#F5EEF8","items":["2.8 tsp fresh or dried thyme","2 pieces bay leaves","2.8 tsp cumin (marinade)","2 tsp smoked paprika (marinade)","1.5 tsp turmeric (marinade)","1.5 tsp coriander (marinade)","0.8 tsp cinnamon (marinade)","0.8 tsp garlic powder (marinade)","2.8 tsp cumin","1.5 tsp smoked paprika","1.5 tsp chili powder","1.5 tsp garlic powder (fries)","1.5 tsp smoked paprika (fries)"]}]},{"id":"b","label":"Plan B — Alternate Week","color":"#C8803A","activeTabClass":"active-b","categories":[{"category":"🥩 Proteins","color":"#C0392B","bg":"#FDF0EE","items":["2.3 kg chicken thighs (bone-in preferred)","900 g sausages (Italian or mild)","900 g flank steak or sirloin, sliced thinly against the grain","6 pieces (~130g each) white fish fillets (cod, haddock, or tilapia)"]},{"category":"🥦 Produce","color":"#27AE60","bg":"#EEF9F2","items":["1 pieces large onion, diced","4.5 pieces celery stalks, sliced","4.5 pieces medium carrots, sliced into rounds","4 cloves garlic cloves, minced","2 pieces fresh rosemary sprigs","4 pieces fresh thyme sprigs","4.5 pieces bell peppers (mixed colours), cut into strips","3 pieces medium onions, cut into wedges","750 g potatoes, cut into 2cm chunks","1.5 head broccoli, cut into small florets","3 cloves garlic cloves, minced (sauce)","1.5 tsp fresh ginger, grated","0.8 head half head of cabbage, shredded (slaw)","6 pieces limes (slaw + crema)"]},{"category":"🧀 Dairy & Refrigerated","color":"#E67E22","bg":"#FEF6EE","items":["600 g old cheddar, freshly grated","100 g Gruyere or extra old white cheddar (optional)","6 tbsp butter","750 ml whole milk","2.8 tbsp butter, melted (topping)","5.5 tbsp sour cream (lime crema)"]},{"category":"🥫 Pantry & Dry Goods","color":"#2980B9","bg":"#EEF4FB","items":["3 tins (400ml) canned cannellini beans, drained","1.5 litres chicken stock","5.5 tbsp olive oil","750 g elbow macaroni","5.5 tbsp all-purpose flour","1.5 tsp Dijon mustard","1.4 cups panko breadcrumbs (topping)","2.8 tbsp soy sauce (marinade)","1.5 tbsp oyster sauce (marinade)","1.5 tsp sesame oil (marinade)","1.5 tbsp cornstarch (marinade)","450 g egg noodles or lo mein noodles","4.3 tbsp soy sauce (stir-fry sauce)","2.8 tbsp oyster sauce (stir-fry sauce)","137.5 ml beef stock","1.5 tsp brown sugar","1.5 tbsp cornstarch (stir-fry sauce)","4.3 tbsp all-purpose flour (coating)","18 pieces small corn or flour tortillas","2.8 tbsp mayo (slaw)","1 bottle hot sauce"]},{"category":"🫙 Spices","color":"#8E44AD","bg":"#F5EEF8","items":["2 pieces bay leaves","2 tsp Italian seasoning","1.5 tsp garlic powder","1 pinch cayenne pepper","1 pinch garlic powder (topping)","1.5 tsp cumin (coating)","1.5 tsp smoked paprika (coating)","0.8 tsp garlic powder (coating)","1 pinch cayenne pepper (coating)"]}]}];
 let currentPlan = PLANS[0].id;
 const state = {};
 PLANS.forEach(p => { state[p.id] = {}; p.categories.forEach(c => c.items.forEach(i => { state[p.id][i] = false; })); });
@@ -231,9 +181,4 @@ function build() {
 build();
 </script>
 </body>
-</html>`;
-
-  fs.mkdirSync(outputDir, { recursive: true });
-  fs.writeFileSync(outputPath, html, 'utf8');
-  console.log(`  ✓ Checklist → ${outputPath}`);
-}
+</html>
