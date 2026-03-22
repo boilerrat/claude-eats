@@ -5,13 +5,24 @@ import { useRouter } from 'next/navigation';
 
 const ALL_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+type Pref = { id: string; ingredient: string; type: string };
+
 interface Props {
   planDays: string[];
   apiKeySet: boolean;
+  blocked: Pref[];
+  preferred: Pref[];
 }
 
-export default function SettingsView({ planDays: initialDays, apiKeySet }: Props) {
+export default function SettingsView({ planDays: initialDays, apiKeySet, blocked: initBlocked, preferred: initPreferred }: Props) {
   const router = useRouter();
+
+  // Preferences
+  const [blocked, setBlocked] = useState<Pref[]>(initBlocked);
+  const [preferred, setPreferred] = useState<Pref[]>(initPreferred);
+  const [prefInput, setPrefInput] = useState('');
+  const [prefType, setPrefType] = useState<'blocked' | 'preferred'>('blocked');
+  const [prefLoading, setPrefLoading] = useState(false);
 
   // Plan days
   const [selectedDays, setSelectedDays] = useState<string[]>(initialDays);
@@ -29,6 +40,34 @@ export default function SettingsView({ planDays: initialDays, apiKeySet }: Props
   const [confirmPw, setConfirmPw] = useState('');
   const [pwLoading, setPwLoading] = useState(false);
   const [pwMsg, setPwMsg] = useState('');
+
+  // ── Preferences ───────────────────────────────────────────────────────────
+
+  async function addPref() {
+    const ingredient = prefInput.trim().toLowerCase();
+    if (!ingredient) return;
+    setPrefLoading(true);
+    const res = await fetch('/api/preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ingredient, type: prefType }),
+    });
+    if (res.ok) {
+      const pref: Pref = await res.json();
+      if (prefType === 'blocked') setBlocked(prev => [...prev, pref]);
+      else setPreferred(prev => [...prev, pref]);
+      setPrefInput('');
+    }
+    setPrefLoading(false);
+  }
+
+  async function removePref(id: string, type: 'blocked' | 'preferred') {
+    await fetch(`/api/preferences/${id}`, { method: 'DELETE' });
+    if (type === 'blocked') setBlocked(prev => prev.filter(p => p.id !== id));
+    else setPreferred(prev => prev.filter(p => p.id !== id));
+  }
+
+  // ── Planning days ─────────────────────────────────────────────────────────
 
   function toggleDay(day: string) {
     setSelectedDays(prev =>
@@ -62,6 +101,8 @@ export default function SettingsView({ planDays: initialDays, apiKeySet }: Props
     }
   }
 
+  // ── API key ───────────────────────────────────────────────────────────────
+
   async function saveApiKey(e: FormEvent) {
     e.preventDefault();
     setApiKeyLoading(true);
@@ -86,6 +127,8 @@ export default function SettingsView({ planDays: initialDays, apiKeySet }: Props
       setApiKeyLoading(false);
     }
   }
+
+  // ── Password ──────────────────────────────────────────────────────────────
 
   async function savePassword(e: FormEvent) {
     e.preventDefault();
@@ -122,8 +165,100 @@ export default function SettingsView({ planDays: initialDays, apiKeySet }: Props
     router.push('/login');
   }
 
+  // ── Render ────────────────────────────────────────────────────────────────
+
   return (
     <div className="space-y-8">
+
+      {/* Ingredient preferences */}
+      <section className="bg-surface rounded-2xl border border-border p-6 space-y-6">
+        <div>
+          <h2 className="font-display italic text-lg text-text mb-1">Ingredient preferences</h2>
+          <p className="text-subtle text-xs">Claude uses these every time it generates a meal plan.</p>
+        </div>
+
+        {/* Add form */}
+        <div className="flex gap-2">
+          <input
+            value={prefInput}
+            onChange={e => setPrefInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addPref()}
+            placeholder="e.g. onions, peanuts, shellfish"
+            className="flex-1 px-3.5 py-2.5 rounded-xl bg-bg border border-border text-sm text-text placeholder-subtle focus:outline-none focus:border-amber transition-colors"
+          />
+          <select
+            value={prefType}
+            onChange={e => setPrefType(e.target.value as 'blocked' | 'preferred')}
+            className="px-3 py-2.5 rounded-xl bg-bg border border-border text-sm text-text focus:outline-none focus:border-amber transition-colors"
+          >
+            <option value="blocked">Never use</option>
+            <option value="preferred">Preferred</option>
+          </select>
+          <button
+            onClick={addPref}
+            disabled={prefLoading || !prefInput.trim()}
+            className="px-4 py-2.5 rounded-xl bg-amber text-bg text-sm font-semibold transition-all hover:bg-amber-light active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Add
+          </button>
+        </div>
+
+        {/* Never use */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-2 h-2 rounded-full bg-rose shrink-0" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted">Never use</span>
+          </div>
+          {blocked.length === 0 ? (
+            <p className="text-sm text-subtle italic font-display pl-4">None added yet.</p>
+          ) : (
+            <ul className="flex flex-wrap gap-2">
+              {blocked.map(p => (
+                <li key={p.id} className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-rose/10 border border-rose/25 text-sm text-rose font-medium">
+                  {p.ingredient}
+                  <button
+                    onClick={() => removePref(p.id, 'blocked')}
+                    aria-label={`Remove ${p.ingredient}`}
+                    className="w-4 h-4 flex items-center justify-center rounded-md hover:bg-rose/20 transition-colors text-rose/60 hover:text-rose"
+                  >
+                    <svg viewBox="0 0 12 12" fill="none" className="w-3 h-3">
+                      <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Preferred */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-2 h-2 rounded-full bg-sage shrink-0" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted">Preferred — favour these</span>
+          </div>
+          {preferred.length === 0 ? (
+            <p className="text-sm text-subtle italic font-display pl-4">None added yet.</p>
+          ) : (
+            <ul className="flex flex-wrap gap-2">
+              {preferred.map(p => (
+                <li key={p.id} className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-sage/10 border border-sage/25 text-sm text-sage font-medium">
+                  {p.ingredient}
+                  <button
+                    onClick={() => removePref(p.id, 'preferred')}
+                    aria-label={`Remove ${p.ingredient}`}
+                    className="w-4 h-4 flex items-center justify-center rounded-md hover:bg-sage/20 transition-colors text-sage/60 hover:text-sage"
+                  >
+                    <svg viewBox="0 0 12 12" fill="none" className="w-3 h-3">
+                      <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
 
       {/* Planning days */}
       <section className="bg-surface rounded-2xl border border-border p-6">

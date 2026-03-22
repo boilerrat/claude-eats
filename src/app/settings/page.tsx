@@ -1,11 +1,18 @@
+import { prisma } from '@/lib/db';
 import { getAppSettings } from '@/lib/appSettings';
 import SettingsView from '@/components/SettingsView';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
-  const settings = await getAppSettings();
+  const [settings, prefs] = await Promise.all([
+    getAppSettings(),
+    prisma.ingredientPreference.findMany({ orderBy: { createdAt: 'asc' } }),
+  ]);
+
   const planDays: string[] = JSON.parse(settings.planDays);
+  const blocked = prefs.filter(p => p.type === 'blocked');
+  const preferred = prefs.filter(p => p.type === 'preferred');
 
   return (
     <div className="max-w-xl">
@@ -13,11 +20,13 @@ export default async function SettingsPage() {
         Settings
       </h1>
       <p className="text-muted text-sm mb-8">
-        Manage your API key, planning days, and password.
+        Manage your meal preferences, planning days, API key, and password.
       </p>
       <SettingsView
         planDays={planDays}
         apiKeySet={settings.anthropicApiKey.length > 0}
+        blocked={blocked}
+        preferred={preferred}
       />
     </div>
   );

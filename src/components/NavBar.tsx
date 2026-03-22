@@ -40,19 +40,6 @@ const navLinks = [
     ),
   },
   {
-    href: '/preferences',
-    label: 'Preferences',
-    short: 'Prefs',
-    icon: (active: boolean) => (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.7} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-        <path d="M4 6h16M4 12h16M4 18h16"/>
-        <circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/>
-        <circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>
-        <circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
-      </svg>
-    ),
-  },
-  {
     href: '/history',
     label: 'History',
     short: 'History',
@@ -116,6 +103,22 @@ export default function NavBar() {
                 </Link>
               );
             })}
+            <a
+              href="https://buymeacoffee.com/boilerhaus"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Buy me a coffee"
+              aria-label="Support this project"
+              className="ml-1 p-2 rounded-lg text-subtle/50 hover:text-amber/70 hover:bg-amber/8 transition-all duration-150"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <path d="M18 8h1a4 4 0 010 8h-1"/>
+                <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/>
+                <line x1="6" y1="1" x2="6" y2="4"/>
+                <line x1="10" y1="1" x2="10" y2="4"/>
+                <line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+            </a>
           </nav>
         </div>
       </header>
@@ -136,7 +139,7 @@ export default function NavBar() {
 
       {/* ── Mobile bottom tab bar ───────────────────────── */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border pb-safe">
-        <div className="grid grid-cols-6">
+        <div className="grid grid-cols-5">
           {navLinks.map(({ href, short, icon }) => {
             const active = pathname === href;
             return (
